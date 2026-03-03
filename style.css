@@ -1,0 +1,464 @@
+/* ============================================================
+   GAMING LEARNING — STYLE.CSS  (v5 — CodeCombat EXACT CLONE)
+   Immersive world map, stone texture HUD, parchment-style info
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+/* ---------- TOKENS & TEXTURES ---------- */
+:root {
+  /* Game Assets */
+  --bg-map: url('map_bg.png');
+  --bg-stone: url('stone_tex.png');
+  --bg-parchment: url('parchment_tex.png');
+
+  /* Dark RPG palette */
+  --bg-dark: #0a0f16;
+  --bg-surface: #111c2e;
+
+  --emerald: #1db966;
+  --emerald-dark: #14874a;
+  --amber: #f5a623;
+  --gold: #e8c44a;
+  --cyan: #3dd6f5;
+  --danger: #e84040;
+
+  --border-gold: rgba(232, 196, 74, 0.3);
+  --text-1: #e8edf5;
+  --text-2: #a5b4cc;
+
+  --font-title: 'Cinzel', serif;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --sidebar-w: 64px;
+  /* Minimized sidebar for map focus */
+}
+
+/* ---------- RESET ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-dark);
+  color: var(--text-1);
+  overflow: hidden;
+  /* App scrolls containers internally */
+  height: 100vh;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: var(--font-body);
+}
+
+/* ---------- WORLD MAP ---------- */
+.world-map-viewport {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  background: var(--bg-dark);
+  overflow: auto;
+  cursor: grab;
+}
+
+.world-map-viewport:active {
+  cursor: grabbing;
+}
+
+.map-container {
+  width: 2400px;
+  height: 1400px;
+  background-image: var(--bg-map);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  image-rendering: pixelated;
+  /* Enhance game-y feel */
+}
+
+.map-node {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  z-index: 10;
+}
+
+.map-node:hover {
+  transform: scale(1.15);
+}
+
+.map-node .node-icon {
+  font-size: 2.5rem;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
+  animation: float 3s ease-in-out infinite alternate;
+}
+
+@keyframes float {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-8px);
+  }
+}
+
+.map-node .node-label {
+  position: absolute;
+  top: 100%;
+  background: var(--bg-stone);
+  border: 2px solid var(--border-gold);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-family: var(--font-title);
+  font-size: 0.75rem;
+  color: var(--gold);
+  white-space: nowrap;
+  margin-top: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.map-node.cleared .node-icon {
+  filter: grayscale(0.5) contrast(0.8);
+}
+
+.map-node.cleared::after {
+  content: '✅';
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  font-size: 1.2rem;
+}
+
+/* Map connecting lines (SVG) */
+#map-svg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.map-path {
+  fill: none;
+  stroke: rgba(232, 196, 74, 0.3);
+  stroke-width: 6;
+  stroke-dasharray: 12;
+  animation: dash 20s linear infinite;
+}
+
+@keyframes dash {
+  from {
+    stroke-dashoffset: 1000;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ---------- ORNATE HUD ---------- */
+.hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background-image: var(--bg-stone);
+  border-bottom: 3px solid #1a1a1a;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 1000;
+}
+
+.hud::before {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 10%;
+  right: 10%;
+  height: 3px;
+  background: var(--gold);
+  box-shadow: 0 0 10px var(--gold);
+  opacity: 0.4;
+}
+
+.hud-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.hud-avatar {
+  width: 50px;
+  height: 50px;
+  background: var(--bg-surface);
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.hud-user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-name {
+  font-family: var(--font-title);
+  font-size: 1rem;
+  color: var(--gold);
+}
+
+.xp-container {
+  width: 150px;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-gold);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 3px;
+}
+
+.xp-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #3dd6f5, #1db966);
+  width: 0%;
+  transition: width 0.5s;
+}
+
+.hud-center {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 5px 25px;
+  border: 2px solid var(--border-gold);
+  border-top: none;
+  font-family: var(--font-title);
+  font-size: 1.2rem;
+  color: var(--gold);
+  border-radius: 0 0 12px 12px;
+}
+
+.hud-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+}
+
+.stat-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.stat-box img,
+.stat-box span.emoji {
+  font-size: 1.3rem;
+}
+
+/* ---------- SIDEBAR (RPG Mini) ---------- */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 64px;
+  bottom: 0;
+  width: var(--sidebar-w);
+  background-image: var(--bg-stone);
+  border-right: 3px solid #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+  gap: 20px;
+  z-index: 1000;
+}
+
+.nav-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid var(--border-gold);
+  color: var(--text-2);
+  border-radius: 8px;
+  font-size: 1.2rem;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover {
+  border-color: var(--gold);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.nav-btn.active {
+  background: var(--gold);
+  color: #000;
+  border-color: #fff;
+}
+
+/* ---------- PARCHMENT SCREENS ---------- */
+.parchment-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 2000;
+  padding: 20px;
+}
+
+.parchment-container {
+  max-width: 600px;
+  width: 100%;
+  background-image: var(--bg-parchment);
+  background-size: cover;
+  padding: 40px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 1);
+  border-radius: 5px;
+  position: relative;
+  min-height: 400px;
+  color: #3e271a;
+  /* Dark brown ink */
+  font-family: var(--font-body);
+}
+
+.parchment-container h1,
+.parchment-container h2 {
+  font-family: var(--font-title);
+  text-align: center;
+  margin-bottom: 20px;
+  color: #2c1a11;
+}
+
+/* Custom Torn Edges */
+.parchment-container::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: var(--bg-parchment);
+  clip-path: polygon(0 100%, 5% 70%, 10% 90%, 15% 60%, 20% 85%, 25% 65%, 30% 95%, 35% 75%, 40% 92%, 45% 68%, 50% 100%, 55% 74%, 60% 88%, 65% 62%, 70% 82%, 75% 66%, 80% 91%, 85% 72%, 90% 86%, 95% 64%, 100% 100%);
+}
+
+/* ---------- RPG BUTTONS (Emerald style) ---------- */
+.btn-emerald {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(180deg, #22cc72 0%, #1db966 100%);
+  border: 1px solid #14874a;
+  border-bottom: 5px solid #0d5c32;
+  border-radius: 4px;
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  color: #fff;
+  text-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
+  margin-top: 15px;
+  transition: transform 0.1s;
+}
+
+.btn-emerald:active {
+  transform: translateY(3px);
+  border-bottom-width: 2px;
+}
+
+/* ---------- LANDING / LOGIN ---------- */
+.landing-page {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), var(--bg-map);
+  background-size: cover;
+}
+
+.stone-login-card {
+  background-image: var(--bg-stone);
+  border: 4px solid var(--border-gold);
+  border-radius: 12px;
+  padding: 40px;
+  width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 1);
+}
+
+.stone-login-card h1 {
+  font-family: var(--font-title);
+  font-size: 2rem;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.stone-login-card input {
+  width: 100%;
+  background: #000;
+  border: 2px solid var(--border-gold);
+  border-radius: 5px;
+  padding: 12px;
+  color: #fff;
+  font-family: var(--font-mono);
+  margin: 20px 0;
+}
+
+/* Character Pedestal */
+.pedestal-area {
+  margin: 30px auto;
+  width: 200px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(232, 196, 74, 0.3) 0%, transparent 70%);
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.pedestal-area .char-hero {
+  font-size: 6rem;
+  filter: drop-shadow(0 0 20px var(--gold));
+}
+
+/* Responsive basics */
+@media (max-width: 768px) {
+  .hud-center {
+    display: none;
+  }
+
+  .hud-stat-label {
+    display: none;
+  }
+
+  .sidebar {
+    width: 50px;
+  }
+}
